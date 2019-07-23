@@ -3,7 +3,6 @@ set -u
 
 PARAM_LIMIT=10
 PARAM_OFFSET=0
-PARAMS=""
 
 SCRIPTNAME=termux-call-log
 
@@ -28,5 +27,6 @@ shift $(($OPTIND-1))
 
 if [ $# != 0 ]; then echo "$SCRIPTNAME: too many arguments"; exit 1; fi
 
-PARAMS="$PARAMS --ei offset $PARAM_OFFSET --ei limit $PARAM_LIMIT"
-/data/data/com.termux/files/usr/libexec/termux-api CallLog $PARAMS
+echo "{'api_method' : 'CallLog',
+       'offset' : ${PARAM_OFFSET},
+       'limit' : ${PARAM_LIMIT}}" | /data/data/com.termux/files/usr/usr/libexec/termux-api
