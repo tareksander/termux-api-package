@@ -35,7 +35,6 @@ _Noreturn void exec_am_broadcast()
     child_argv[4] = "-n";
     child_argv[5] = "com.termux.api/.TermuxApiReceiver";
 
-
     // Use an a executable taking care of PATH and LD_LIBRARY_PATH:
     execv("/data/data/com.termux/files/usr/bin/am", child_argv);
 
@@ -46,9 +45,6 @@ _Noreturn void exec_am_broadcast()
 // Thread function which reads from stdin and writes to socket.
 void* transmit_stdin_to_socket(void* arg) {
     int output_server_socket = *((int*) arg);
-    struct sockaddr_un remote_addr;
-    socklen_t addrlen = sizeof(remote_addr);
-    //int output_client_socket = accept(output_server_socket, (struct sockaddr*) &remote_addr, &addrlen);
 
     ssize_t len;
     char buffer[1024];
@@ -70,7 +66,7 @@ void transmit_socket_to_stdout(int input_socket_fd) {
     if (len < 0) perror("read()");
 }
 
-int main(int argc, char** argv) {
+int main() {
     // Do not transform children into zombies when they terminate:
     struct sigaction sigchld_action = { .sa_handler = SIG_DFL, .sa_flags = SA_RESTART | SA_NOCLDSTOP | SA_NOCLDWAIT };
     sigaction(SIGCHLD, &sigchld_action, NULL);
@@ -93,24 +89,16 @@ int main(int argc, char** argv) {
         perror("bind(input)");
         return 1;
     }
+
     if (connect(output_server_socket, (struct sockaddr*) &output_address, sizeof(sa_family_t) + strlen(output_address_string) + 1) == -1) {
-        perror("connect(output)");
-       return 1;
+        exec_am_broadcast();
+        return 1;
     }
 
     if (listen(input_server_socket, 1) == -1) { perror("listen()"); return 1; }
 
     pthread_t transmit_thread;
     pthread_create(&transmit_thread, NULL, transmit_stdin_to_socket, &output_server_socket);
-
-
-//    if (listen(output_server_socket, 1) == -1) { perror("listen()"); return 1; }
-
-//    pid_t fork_result = fork();
-//    switch (fork_result) {
-//        case -1: perror("fork()"); return 1;
-//        case 0: exec_am_broadcast(argc, argv);
-//    }
 
     struct sockaddr_un remote_addr;
     socklen_t addrlen = sizeof(remote_addr);
