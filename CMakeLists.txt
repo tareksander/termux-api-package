@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.0.0)
 project(termux-api)
 include(GNUInstallDirs)
 
+add_library(termuxAPI SHARED termuxAPI.c)
+set(TERMUX_PREFIX ${CMAKE_INSTALL_PREFIX})
+
 add_executable(termux-api termux-api.c)
+target_link_libraries(termux-api termuxAPI)
 
 set(TERMUX_PREFIX ${CMAKE_INSTALL_PREFIX})
 
@@ -74,6 +78,11 @@ install(
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
     GROUP_READ GROUP_EXECUTE
     WORLD_READ WORLD_EXECUTE
+)
+
+install(
+  FILES ${CMAKE_BINARY_DIR}/libtermuxAPI.so
+  TYPE LIB
 )
 
 foreach(file ${script_files})
