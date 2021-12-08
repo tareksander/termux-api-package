@@ -41,7 +41,7 @@ _Noreturn void exec_am_broadcast(int argc, char** argv,
     int const extra_args = 15; // Including ending NULL.
     char** child_argv = malloc((sizeof(char*)) * (argc + extra_args));
 
-    child_argv[0] = "am";
+    child_argv[0] = "termux-am";
     child_argv[1] = "broadcast";
     child_argv[2] = "--user";
     child_argv[3] = "0";
